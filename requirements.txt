@@ -1,2 +1,3 @@
 langchain-ollama
 langchain-core
+langchain-community
