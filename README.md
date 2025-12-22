@@ -11,7 +11,7 @@ A collection of LangChain examples using Ollama and Llama 3.2, with a focus on n
 ## Installation
 
 ```bash
-pip install langchain-ollama langchain-core
+pip install -r requirements.txt
 ```
 
 ## Examples
