@@ -50,7 +50,7 @@ pip install -r requirements.txt
 | File | Concept | Description |
 |------|---------|-------------|
 | `rag_setup.py` | Vector store setup | ChromaDB with HuggingFace embeddings |
-| `reg_chain.py` | RAG chain | Query network docs with context retrieval |
+| `rag_chain.py` | RAG chain | Query network docs with context retrieval |
 | `docs/network_runbook.md` | Knowledge base | OSPF, BGP, VLAN, interface troubleshooting guides |
 
 ## Usage
@@ -65,7 +65,7 @@ python react_agent.py
 
 # RAG - first build the vector store, then query
 python rag_setup.py
-python reg_chain.py
+python rag_chain.py
 ```
 
 ## Topics Covered
