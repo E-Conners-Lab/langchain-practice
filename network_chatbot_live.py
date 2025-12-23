@@ -24,7 +24,7 @@ from scrapli.driver.generic import AsyncGenericDriver
 load_dotenv()
 
 # ===== CONFIGURATION =====
-MODEL_NAME = "qwen2.5"
+MODEL_NAME = "mistral"
 
 # Device credentials from environment
 USERNAME = os.getenv("DEVICE_USERNAME", "admin")
