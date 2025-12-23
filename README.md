@@ -16,20 +16,34 @@ pip install -r requirements.txt
 
 ## Examples
 
-### Basic Prompt (`basic_prompt.py`)
-Simple LLM invocation demonstrating direct model interaction.
+### Basics
 
-### Prompt Templates (`prompt_templates.py`)
-Using `PromptTemplate` with input variables for dynamic prompt generation.
+| File | Concept | Description |
+|------|---------|-------------|
+| `basic_prompt.py` | Direct invocation | Simple `llm.invoke()` call |
+| `prompt_templates.py` | PromptTemplate | Dynamic prompts with variables |
+| `basic_chain.py` | LCEL chains | Pipe operator with output parsers |
 
-### Basic Chain (`basic_chain.py`)
-Demonstrates LangChain Expression Language (LCEL) to create chains with prompt templates and output parsers.
+### Prompting Techniques
 
-### Chat Prompts (`chat_prompts.py`)
-Using `ChatPromptTemplate` with system and human messages to create a network engineering assistant.
+| File | Concept | Description |
+|------|---------|-------------|
+| `chat_prompts.py` | ChatPromptTemplate | System/human message roles |
+| `few_shot.py` | Few-shot learning | Teaching via examples |
 
-### Few-Shot Prompting (`few_shot.py`)
-Implements few-shot learning with `FewShotPromptTemplate` to teach the model Cisco command descriptions.
+### Memory & State
+
+| File | Concept | Description |
+|------|---------|-------------|
+| `memory_chat.py` | Conversation memory | `RunnableWithMessageHistory` for session-based chat |
+
+### Chains & Agents
+
+| File | Concept | Description |
+|------|---------|-------------|
+| `sequential_chains.py` | Sequential chains | Output of one chain feeds into the next |
+| `custom_tools.py` | Custom tools | `@tool` decorator for callable functions |
+| `react_agent.py` | Tool-using agent | LLM decides which tool to call |
 
 ## Usage
 
@@ -37,15 +51,15 @@ Make sure Ollama is running, then execute any example:
 
 ```bash
 python basic_prompt.py
-python basic_chain.py
-python chat_prompts.py
-python few_shot.py
-python prompt_templates.py
+python memory_chat.py
+python sequential_chains.py
+python react_agent.py
 ```
 
 ## Topics Covered
 
-- BGP troubleshooting
-- OSPF neighbor states
+- BGP/OSPF troubleshooting
 - Cisco IOS commands
-- Network protocol explanations
+- Subnet calculations
+- VLAN lookups
+- Inter-VLAN routing diagnostics
