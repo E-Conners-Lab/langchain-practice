@@ -1,12 +1,12 @@
 # LangChain Practice
 
-A collection of LangChain examples using Ollama and Llama 3.2, with a focus on network engineering use cases.
+A collection of LangChain examples using Ollama and Mistral, with a focus on network engineering use cases.
 
 ## Prerequisites
 
 - Python 3.12.12 (3.14 has compatibility issues with some dependencies)
 - [Ollama](https://ollama.ai/) installed and running
-- Llama 3.2 model pulled (`ollama pull llama3.2`)
+- Mistral model pulled (`ollama pull mistral`)
 
 ## Installation
 
