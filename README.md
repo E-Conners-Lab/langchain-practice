@@ -53,6 +53,13 @@ pip install -r requirements.txt
 | `rag_chain.py` | RAG chain | Query network docs with context retrieval |
 | `docs/network_runbook.md` | Knowledge base | OSPF, BGP, VLAN, interface troubleshooting guides |
 
+### Network Chatbots
+
+| File | Concept | Description |
+|------|---------|-------------|
+| `network_chatbot.py` | Integrated chatbot | Combines tools, RAG, and conversation memory with simulated data |
+| `network_chatbot_live.py` | Live lab chatbot | Connects to real devices via Scrapli for live network queries |
+
 ## Usage
 
 Make sure Ollama is running, then execute any example:
@@ -66,6 +73,10 @@ python react_agent.py
 # RAG - first build the vector store, then query
 python rag_setup.py
 python rag_chain.py
+
+# Network chatbots - interactive assistants
+python network_chatbot.py       # Uses simulated data
+python network_chatbot_live.py  # Connects to real lab devices (requires .env config)
 ```
 
 ## Topics Covered
