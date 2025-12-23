@@ -12,3 +12,6 @@ __pycache__/
 
 # Environment variables
 .env
+
+# Vector store
+chroma_db/

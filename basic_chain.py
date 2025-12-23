@@ -1,4 +1,4 @@
-"""Basic chain example with LangCHain and Ollama."""
+"""Basic chain example with LangChain and Ollama."""
 
 from langchain_ollama import OllamaLLM
 from langchain_core.prompts import PromptTemplate

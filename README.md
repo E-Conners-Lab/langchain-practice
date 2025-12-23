@@ -4,7 +4,7 @@ A collection of LangChain examples using Ollama and Llama 3.2, with a focus on n
 
 ## Prerequisites
 
-- Python 3.8+
+- Python 3.12.12 (3.14 has compatibility issues with some dependencies)
 - [Ollama](https://ollama.ai/) installed and running
 - Llama 3.2 model pulled (`ollama pull llama3.2`)
 
@@ -45,6 +45,14 @@ pip install -r requirements.txt
 | `custom_tools.py` | Custom tools | 9 network tools: subnet calc, VLAN lookup, ping, routing, OSPF, BGP, ACL |
 | `react_agent.py` | Tool-using agent | LLM decides which tool to call |
 
+### RAG (Retrieval-Augmented Generation)
+
+| File | Concept | Description |
+|------|---------|-------------|
+| `rag_setup.py` | Vector store setup | ChromaDB with HuggingFace embeddings |
+| `reg_chain.py` | RAG chain | Query network docs with context retrieval |
+| `docs/network_runbook.md` | Knowledge base | OSPF, BGP, VLAN, interface troubleshooting guides |
+
 ## Usage
 
 Make sure Ollama is running, then execute any example:
@@ -54,6 +62,10 @@ python basic_prompt.py
 python memory_chat.py
 python sequential_chains.py
 python react_agent.py
+
+# RAG - first build the vector store, then query
+python rag_setup.py
+python reg_chain.py
 ```
 
 ## Topics Covered

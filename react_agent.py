@@ -1,67 +1,94 @@
 """Agent that uses custom tools to solve problems."""
 
 from langchain_ollama import OllamaLLM
-from langchain_core.tools import tool
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-import ipaddress
 
+# Import tools from custom_tools.py instead of redefining them
+from custom_tools import (
+    calculate_subnet,
+    lookup_vlan,
+    check_port_status,
+    ping_check,
+    get_routing_table,
+    get_ospf_neighbors,
+    get_bgp_summary,
+    get_interface_errors,
+    generate_acl,
+)
 
-# Define tools
-@tool
-def calculate_subnet(cidr: str) -> str:
-    """Calculate subnet details from CIDR notation. Input should be like '192.168.1.0/24'."""
-    try:
-        network = ipaddress.ip_network(cidr, strict=False)
-        return f"Network: {network.network_address}, Broadcast: {network.broadcast_address}, Mask: {network.netmask}, Usable hosts: {network.num_addresses - 2}"
-    except ValueError as e:
-        return f"Error: {str(e)}"
-
-
-@tool
-def lookup_vlan(vlan_id: int) -> str:
-    """Look up VLAN information by ID number."""
-    vlan_db = {
-        10: {"name": "USERS", "subnet": "192.168.10.0/24"},
-        20: {"name": "SERVERS", "subnet": "192.168.20.0/24"},
-        30: {"name": "MANAGEMENT", "subnet": "192.168.30.0/24"},
-    }
-    if vlan_id in vlan_db:
-        vlan = vlan_db[vlan_id]
-        return f"VLAN {vlan_id}: {vlan['name']}, Subnet: {vlan['subnet']}"
-    return f"VLAN {vlan_id} not found"
-
-
-@tool
-def check_interface(interface: str) -> str:
-    """Check interface status. Input should be interface name like 'GigabitEthernet0/1'."""
-    interfaces = {
-        "GigabitEthernet0/1": "up/up, VLAN 10, 1Gbps",
-        "GigabitEthernet0/2": "down/down, VLAN 20, auto",
-        "GigabitEthernet0/3": "up/up, VLAN 30, 100Mbps",
-    }
-    if interface in interfaces:
-        return f"{interface}: {interfaces[interface]}"
-    return f"Interface {interface} not found"
-
-
-# Tool registry
+# Tool registry with metadata for dynamic invocation
 tools = {
-    "calculate_subnet": calculate_subnet,
-    "lookup_vlan": lookup_vlan,
-    "check_interface": check_interface,
+    "calculate_subnet": {
+        "func": calculate_subnet,
+        "param": "cidr",
+        "type": str,
+        "desc": "Calculate subnet details from CIDR notation (e.g., '192.168.1.0/24')"
+    },
+    "lookup_vlan": {
+        "func": lookup_vlan,
+        "param": "vlan_id",
+        "type": int,
+        "desc": "Look up VLAN info by ID (e.g., 10, 20, 30, 99, 100)"
+    },
+    "check_port_status": {
+        "func": check_port_status,
+        "param": "interface",
+        "type": str,
+        "desc": "Check interface status (e.g., 'GigabitEthernet0/1')"
+    },
+    "ping_check": {
+        "func": ping_check,
+        "param": "target",
+        "type": str,
+        "desc": "Ping an IP address (e.g., '192.168.10.1', '8.8.8.8')"
+    },
+    "get_routing_table": {
+        "func": get_routing_table,
+        "param": "device",
+        "type": str,
+        "desc": "Get routing table for a device (e.g., 'R1', 'R2', 'SW1')"
+    },
+    "get_ospf_neighbors": {
+        "func": get_ospf_neighbors,
+        "param": "device",
+        "type": str,
+        "desc": "Get OSPF neighbors for a device (e.g., 'R1', 'R2', 'R3')"
+    },
+    "get_bgp_summary": {
+        "func": get_bgp_summary,
+        "param": "device",
+        "type": str,
+        "desc": "Get BGP summary for a device (e.g., 'R1', 'R2')"
+    },
+    "get_interface_errors": {
+        "func": get_interface_errors,
+        "param": "interface",
+        "type": str,
+        "desc": "Get error counters for interface (e.g., 'GigabitEthernet0/2')"
+    },
+    "generate_acl": {
+        "func": generate_acl,
+        "param": "params",
+        "type": str,
+        "desc": "Generate ACL config. Format: 'permit|deny,source,dest,protocol,port'"
+    },
 }
+
+# Build tool descriptions dynamically for the prompt
+tool_descriptions = "\n".join(
+    f"{i+1}. {name} - {info['desc']}"
+    for i, (name, info) in enumerate(tools.items())
+)
 
 # Initialize model
 llm = OllamaLLM(model="llama3.2")
 
 # Prompt that asks the model to decide which tool to use
 router_prompt = ChatPromptTemplate.from_messages([
-    ("system", """You are a network engineering assistant with access to these tools:
+    ("system", f"""You are a network engineering assistant with access to these tools:
 
-1. calculate_subnet - Calculate subnet details from CIDR notation (e.g., "192.168.1.0/24")
-2. lookup_vlan - Look up VLAN information by ID number (e.g., 10, 20, 30)
-3. check_interface - Check interface status (e.g., "GigabitEthernet0/1")
+{tool_descriptions}
 
 Given a question, decide which tool to use and what input to provide.
 Respond in exactly this format:
@@ -77,7 +104,7 @@ ANSWER: <your direct answer>"""),
 router_chain = router_prompt | llm | StrOutputParser()
 
 
-def parse_tool_response(response: str) -> tuple[str, str]:
+def parse_tool_response(response: str) -> tuple[str, str, str]:
     """Parse the model's tool selection response."""
     lines = response.strip().split("\n")
     tool_name = None
@@ -115,20 +142,18 @@ def run_agent(question: str) -> str:
         print(f"No tool needed. Direct answer: {direct_answer}")
         return direct_answer or response
 
-    # Step 3: Execute the tool
+    # Step 3: Execute the tool dynamically
     if tool_name in tools:
+        tool_info = tools[tool_name]
         print(f"Executing tool: {tool_name}")
         print(f"With input: {tool_input}")
 
-        # Convert input for the tool
-        if tool_name == "lookup_vlan":
-            tool_result = tools[tool_name].invoke({"vlan_id": int(tool_input)})
-        elif tool_name == "calculate_subnet":
-            tool_result = tools[tool_name].invoke({"cidr": tool_input})
-        elif tool_name == "check_interface":
-            tool_result = tools[tool_name].invoke({"interface": tool_input})
-        else:
-            tool_result = "Unknown tool"
+        # Convert input to correct type and invoke
+        try:
+            typed_input = tool_info["type"](tool_input)
+            tool_result = tool_info["func"].invoke({tool_info["param"]: typed_input})
+        except (ValueError, TypeError) as e:
+            tool_result = f"Error invoking tool: {e}"
 
         print(f"\nTool result: {tool_result}")
 
@@ -145,18 +170,27 @@ def run_agent(question: str) -> str:
     else:
         return f"Unknown tool: {tool_name}"
 
-# Test the agent
-print("=" * 50)
-print("TOOL-USING AGENT TEST")
-print("=" * 50)
 
-questions = [
-    "What subnet is VLAN 10 on and how many hosts can it support?",
-    "Is GigabitEthernet0/2 up? What VLAN is it on?",
-    "Calculate the subnet details for 172.16.0.0/20",
-]
+# Test the agent with various tools
+if __name__ == "__main__":
+    print("=" * 50)
+    print("TOOL-USING AGENT TEST")
+    print("=" * 50)
 
-for question in questions:
-    result = run_agent(question)
-    print(f"\nFinal Answer: {result}")
-    print("\n" + "=" * 50)
+    questions = [
+        # Original questions
+        "What subnet is VLAN 10 on?",
+        "Is GigabitEthernet0/2 up?",
+        "Calculate the subnet details for 172.16.0.0/20",
+        # New questions for new tools
+        "Can you ping 192.168.10.1?",
+        "Show me the routing table for R1",
+        "What are the OSPF neighbors on R2?",
+        "Is there a BGP peering issue on R1?",
+        "Are there any errors on GigabitEthernet0/2?",
+    ]
+
+    for question in questions:
+        result = run_agent(question)
+        print(f"\nFinal Answer: {result}")
+        print("\n" + "=" * 50)
