@@ -42,7 +42,7 @@ pip install -r requirements.txt
 | File | Concept | Description |
 |------|---------|-------------|
 | `sequential_chains.py` | Sequential chains | Output of one chain feeds into the next |
-| `custom_tools.py` | Custom tools | `@tool` decorator for callable functions |
+| `custom_tools.py` | Custom tools | 9 network tools: subnet calc, VLAN lookup, ping, routing, OSPF, BGP, ACL |
 | `react_agent.py` | Tool-using agent | LLM decides which tool to call |
 
 ## Usage
